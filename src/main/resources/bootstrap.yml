@@ -1,0 +1,11 @@
+spring:
+  cloud.config:
+    uri: http://localhost:8888
+    username: soa_dev
+    password: soa_dev
+    fail-fast: true
+  application.name: deploy-tool
+---
+spring:
+  profiles: local
+  cloud.config.enabled: false
