@@ -9,7 +9,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import ru.shoppinglive.exceptions.RequestError;
+import ru.shoppinglive.model.entity.profile.Profile;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,6 +22,10 @@ import java.util.stream.Collectors;
  */
 @Service("userDetailsService")
 public class AuthService implements UserDetailsService {
+    private final String RIGHTS_REQUEST = "SELECT DISTINCT r.code FROM soa_deploy_rights r " +
+            "INNER JOIN soa_deploy_user_rights ur ON ur.right_id=r.id " +
+            "INNER JOIN soa_deploy_user u ON u.login=? AND ur.user_id=u.id";
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -34,9 +41,15 @@ public class AuthService implements UserDetailsService {
     }
 
     private List<GrantedAuthority> getAuthorities(String login){
-        return jdbcTemplate.queryForList("SELECT DISTINCT r.code FROM soa_deploy_rights r " +
-                "INNER JOIN soa_deploy_user_rights ur ON ur.right_id=r.id " +
-                "INNER JOIN soa_deploy_user u ON u.login=? AND ur.user_id=u.id", login).stream()
+        return jdbcTemplate.queryForList(RIGHTS_REQUEST, login).stream()
                 .map(map -> new SimpleGrantedAuthority(map.get("code").toString())).collect(Collectors.toList());
+    }
+
+    public Profile getUserInfo(String username){
+        try {
+            return new Profile(username, new HashSet<>(jdbcTemplate.queryForList(RIGHTS_REQUEST, String.class, username)));
+        }catch (Exception e){
+            throw new RequestError("User not found", e);
+        }
     }
 }

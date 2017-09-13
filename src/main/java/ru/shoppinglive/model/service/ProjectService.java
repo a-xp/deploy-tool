@@ -18,4 +18,6 @@ public class ProjectService {
     public Collection<Project> getAll(){
         return projectRepository.findAll();
     }
+
+
 }

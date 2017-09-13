@@ -19,7 +19,7 @@ public class CorsFilter extends GenericFilterBean {
         HttpServletRequest request = (HttpServletRequest)req;
         HttpServletResponse response = (HttpServletResponse)res;
         String origin = request.getHeader("Origin");
-        if (!origin.isEmpty()) {
+        if (origin!=null && !origin.isEmpty()) {
             response.addHeader("Access-Control-Allow-Origin", origin);
             response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH");
             response.addHeader("Access-Control-Allow-Credentials", "true");
