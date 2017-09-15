@@ -3,7 +3,9 @@ package ru.shoppinglive.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.shoppinglive.model.entity.jpa.Project;
+import ru.shoppinglive.model.entity.project.Build;
 import ru.shoppinglive.model.entity.project.Instance;
+import ru.shoppinglive.model.service.BuildService;
 import ru.shoppinglive.model.service.ProjectService;
 import ru.shoppinglive.model.service.TaskService;
 import ru.shoppinglive.model.service.remote.RedmineService;
@@ -21,11 +23,13 @@ import java.util.List;
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private BuildService buildService;
 
     @Autowired
     private TaskService taskService;
 
-    @GetMapping("/")
+    @GetMapping("")
     public Collection<Project> getAll(){
         return projectService.getAll();
     }
@@ -34,8 +38,16 @@ public class ProjectController {
         return Collections.emptyList();
     }
 
-    @GetMapping("/qa-builds")
-    public List<String> getQaBuilds(){
-        return Collections.singletonList(taskService.getName(5097));
+    @GetMapping("/{id}/builds")
+    public List<Build> getBuilds(@PathVariable("id") int id){
+        return buildService.getMasterBuilds(id);
     }
+
+    @GetMapping("/{code}")
+    public Project getOne(@PathVariable("code") String code){
+        return projectService.find(code);
+    }
+
+    @GetMapping("/{id}/qa-builds")
+    public List<Build> getQaBuilds(@PathVariable("id") int id) { return buildService.getQABuilds(id); }
 }

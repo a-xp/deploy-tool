@@ -54,7 +54,7 @@ public abstract class OsService {
         return true;
     }
 
-    public List<String> getDownloadedVersions(String name) {
+    public Set<String> getDownloadedVersions(String name) {
         Path jarDir = Paths.get(soaRoot.getPath(), "jar", name);
         if(Files.exists(jarDir)){
             Pattern p = Pattern.compile("^"+name+"-([0-9\\.\\-]+)\\.jar$");
@@ -64,10 +64,10 @@ public abstract class OsService {
                             Matcher m = p.matcher(filename);
                             return m.find() ? m.group(1) : null;
                         }
-                ).filter(Objects::nonNull).collect(Collectors.toList());
+                ).filter(Objects::nonNull).collect(Collectors.toSet());
             }catch (Exception e){}
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 
     public Boolean downloadJar(String name, String version){

@@ -19,7 +19,6 @@ import javax.persistence.Table;
 @Table(name="soa_tasks")
 public class Task {
     @Id
-    @GeneratedValue
     private int id;
     private String name;
 }

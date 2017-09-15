@@ -19,5 +19,8 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
+    public Project find(String code){
+        return projectRepository.findFirstByCode(code);
+    }
 
 }

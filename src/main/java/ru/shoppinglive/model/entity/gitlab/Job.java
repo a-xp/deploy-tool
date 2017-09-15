@@ -7,12 +7,15 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * Created by rkhabibullin on 12.09.2017.
+ * Created by rkhabibullin on 14.09.2017.
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Pipeline {
+public class Job {
     private int id;
+    private User user;
+    private String name;
     @JsonProperty("finished_at")
-    private Date date;
+    private Date finishedAt;
+    private Commit commit;
 }

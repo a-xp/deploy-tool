@@ -12,9 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import ru.shoppinglive.model.entity.gitlab.Branch;
-import ru.shoppinglive.model.entity.gitlab.Pipeline;
-import ru.shoppinglive.model.entity.gitlab.Project;
+import ru.shoppinglive.model.entity.gitlab.*;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
@@ -62,21 +60,42 @@ public class GitlabService {
     }
 
     @Cacheable("gl-pipelines")
-    public List<Integer> getPipelines(int id, String ref, int cnt){
+    public List<Pipeline> getPipelines(int id, String ref, int cnt){
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url+"/projects/"+id+"/pipelines").queryParam("ref", ref).queryParam("per_page", cnt).queryParam("status","success");
-        return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<Void>(headers), new ParameterizedTypeReference<List<Pipeline>>() {}).getBody()
-            .stream().map(Pipeline::getId).collect(Collectors.toList());
+        return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<Void>(headers), new ParameterizedTypeReference<List<Pipeline>>() {}).getBody();
+    }
+
+    @Cacheable("gl-jobs")
+    public List<Job> getPipelineJobs(int projectId, int pipelineId){
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url+"/projects/"+projectId+"/pipelines/"+pipelineId+"/jobs").queryParam("status","success");
+        return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<Void>(headers), new ParameterizedTypeReference<List<Job>>(){}).getBody();
     }
 
     @Cacheable("gl-versions")
-    public String getVersion(int projectId, int buildId){
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "/projects/" + projectId + "/builds/"+buildId+"/trace", HttpMethod.GET,
+    public String getVersion(int projectId, int jobId){
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "/projects/" + projectId + "/jobs/"+jobId+"/trace", HttpMethod.GET,
                 new HttpEntity<String>(headers), String.class);
-        Pattern p = Pattern.compile("Detected version: '([0-9\\.\\-]+)'");
+        Pattern p = Pattern.compile("Detected version: '(.+?)'");
         String body = responseEntity.getBody();
         if(body==null)return null;
         Matcher m = p.matcher(body);
         return m.find()?m.group(1):null;
+    }
+
+    public List<Commit> findNewCommits(int projectId, String ref){
+        Commit masterHead = getCommits(projectId, "master", 1).get(0);
+        List<Commit> refCommits = getCommits(projectId, ref, 50);
+        int pos = refCommits.indexOf(masterHead);
+        if(pos>-1){
+            return refCommits.subList(0, pos);
+        }
+        return null;
+    }
+
+    private List<Commit> getCommits(int projectId, String ref, int count){
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url+"/projects/"+projectId+"/repository/commits")
+                .queryParam("ref_name", ref).queryParam("per_page", count);
+        return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<Object>(headers), new ParameterizedTypeReference<List<Commit>>(){}).getBody();
     }
 
     @PostConstruct

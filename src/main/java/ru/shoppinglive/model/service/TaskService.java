@@ -19,19 +19,19 @@ public class TaskService {
     private TaskRepository taskRepository;
 
     @Cacheable("features")
-    public String getName(int id){
+    public Task find(int id){
         Task task = taskRepository.findOne(id);
         if(task==null){
             try {
                 String name = redmineService.getFeatureName(id);
-                task = new Task(0, name);
+                task = new Task(id, name);
                 taskRepository.save(task);
-                return name;
+                return task;
             }catch (Exception e){
-                return "Задача #"+id;
+                return null;
             }
         }else {
-            return task.getName();
+            return task;
         }
     }
 

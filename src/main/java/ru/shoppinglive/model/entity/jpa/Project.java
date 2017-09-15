@@ -18,12 +18,13 @@ import java.util.List;
 public class Project {
     @Id
     @GeneratedValue
-    public Integer id;
-    public String name;
-    public String code;
-    public Date lastActivity;
+    private Integer id;
+    private String name;
+    private String code;
+    private Date lastActivity;
     @Enumerated(EnumType.STRING)
-    public Type type;
+    private Type type;
+    private int gitlabId;
 
     public enum Type{
         cron, service
