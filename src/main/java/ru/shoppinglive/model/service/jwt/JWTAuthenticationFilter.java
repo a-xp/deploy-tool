@@ -1,5 +1,6 @@
 package ru.shoppinglive.model.service.jwt;
 
+import io.jsonwebtoken.JwtException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -22,11 +23,15 @@ public class JWTAuthenticationFilter extends GenericFilterBean {
                          ServletResponse response,
                          FilterChain filterChain)
             throws IOException, ServletException {
-        Authentication authentication = TokenAuthenticationService
-                .getAuthentication((HttpServletRequest)request);
-
-        SecurityContextHolder.getContext()
-                .setAuthentication(authentication);
-        filterChain.doFilter(request,response);
+        try {
+            Authentication authentication = TokenAuthenticationService
+                    .getAuthentication((HttpServletRequest)request);
+            SecurityContextHolder.getContext()
+                    .setAuthentication(authentication);
+            filterChain.doFilter(request,response);
+        }catch (JwtException exception){
+            HttpServletResponse webResponse = (HttpServletResponse)response;
+            webResponse.sendError(403);
+        }
     }
 }

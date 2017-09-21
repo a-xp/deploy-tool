@@ -1,9 +1,8 @@
 package ru.shoppinglive.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import ru.shoppinglive.model.entity.profile.Profile;
 import ru.shoppinglive.model.service.jwt.AuthService;
 
@@ -24,4 +23,10 @@ public class ProfileController  {
         return  authService.getUserInfo(principal.getName());
     }
 
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(RuntimeException.class)
+    public String other(RuntimeException exception){
+        return "BAD";
+    }
 }

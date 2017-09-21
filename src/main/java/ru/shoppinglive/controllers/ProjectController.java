@@ -8,7 +8,6 @@ import ru.shoppinglive.model.entity.project.Instance;
 import ru.shoppinglive.model.service.BuildService;
 import ru.shoppinglive.model.service.ProjectService;
 import ru.shoppinglive.model.service.TaskService;
-import ru.shoppinglive.model.service.remote.RedmineService;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -50,4 +49,10 @@ public class ProjectController {
 
     @GetMapping("/{id}/qa-builds")
     public List<Build> getQaBuilds(@PathVariable("id") int id) { return buildService.getQABuilds(id); }
+
+    @GetMapping("/{id}/instances")
+    public List<Instance> getInstances(@PathVariable("id") int id){
+        return Collections.emptyList();
+    }
+
 }
