@@ -13,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by rkhabibullin on 29.03.2017.
@@ -120,4 +122,26 @@ public class LinuxService extends OsService {
         return result;
     }
 
+    @Override
+    public int getUptime(int pid) {
+        ProcessBuilder pb = new ProcessBuilder("ps", "--pid", String.valueOf(pid), "-o etime");
+        pb.redirectErrorStream();
+        int result = 0;
+        try {
+            Process process = pb.start();
+            try (BufferedReader processOutputReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));) {
+                String readLine;
+                Pattern p = Pattern.compile("((\\d+)-)?\\d{2}:\\d{2}:\\d{2}");
+                while (( readLine = processOutputReader.readLine()) != null){
+                    Matcher m = p.matcher(readLine);
+                    if(m.find()){
+                        result = Integer.parseInt(m.group(5)) + 60*Integer.parseInt(m.group(4)) +
+                                Integer.parseInt(m.group(3))*3600 +(m.group(2).isEmpty()?0:Integer.parseInt(m.group(2))*86400);
+                    }
+                }
+            }
+        }catch (Exception e){}
+        return result;
+    }
 }

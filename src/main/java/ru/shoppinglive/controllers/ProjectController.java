@@ -5,9 +5,11 @@ import org.springframework.web.bind.annotation.*;
 import ru.shoppinglive.model.entity.jpa.Project;
 import ru.shoppinglive.model.entity.project.Build;
 import ru.shoppinglive.model.entity.project.Instance;
+import ru.shoppinglive.model.entity.project.ProjectParams;
 import ru.shoppinglive.model.service.BuildService;
 import ru.shoppinglive.model.service.ProjectService;
 import ru.shoppinglive.model.service.TaskService;
+import ru.shoppinglive.model.service.local.InstanceService;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +26,8 @@ public class ProjectController {
     private ProjectService projectService;
     @Autowired
     private BuildService buildService;
-
+    @Autowired
+    private InstanceService instanceService;
     @Autowired
     private TaskService taskService;
 
@@ -52,7 +55,11 @@ public class ProjectController {
 
     @GetMapping("/{id}/instances")
     public List<Instance> getInstances(@PathVariable("id") int id){
-        return Collections.emptyList();
+        return instanceService.getByProject(id);
     }
 
+    @PostMapping("/{id}/script")
+    public void createScript(@PathVariable("id") int id, @RequestBody ProjectParams meta) {
+        projectService.saveParams(id, meta);
+    }
 }

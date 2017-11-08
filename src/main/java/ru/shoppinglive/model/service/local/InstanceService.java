@@ -3,6 +3,7 @@ package ru.shoppinglive.model.service.local;
 
 import com.sun.tools.attach.VirtualMachine;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.stereotype.Service;
 import ru.shoppinglive.model.entity.jpa.Project;
 import ru.shoppinglive.model.entity.project.Instance;
@@ -26,22 +27,22 @@ public class InstanceService {
     private ActuatorService actuatorService;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private InetUtils inetUtils;
 
-    public List<Instance> getByProject(String code){
-        Pattern pattern = Pattern.compile(code+"-([0-9.-]+)\\.jar$");
-        Project project = projectRepository.findFirstByCode(code);
+    public List<Instance> getByProject(int id){
+        Project project = projectRepository.getOne(id);
+        Pattern pattern = Pattern.compile(project.getCode()+"-([0-9.a-z-]+)\\.jar$", Pattern.CASE_INSENSITIVE);
+        String server = inetUtils.findFirstNonLoopbackHostInfo().getIpAddress();
         return VirtualMachine.list().stream()
         .map(vmd -> {
             Matcher m = pattern.matcher(vmd.displayName());
             if(m.find()) {
                 String version = m.group(1);
                 int pid = Integer.parseInt(vmd.id());
-                if(project.getType().equals(Project.Type.service)) {
-                    int port = osService.getPortByPid(pid);
-                    return new Instance(version, pid, port, port == 0 ? null : actuatorService.getHealth("127.0.0.1", port));
-                }else{
-                    return new Instance(version, pid, 0, null);
-                }
+                int port = osService.getPortByPid(pid);
+                int uptime = osService.getUptime(pid);
+                return new Instance(version, server, pid, port, uptime);
             }
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());

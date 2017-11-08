@@ -21,6 +21,11 @@ public class WindowsService extends OsService {
     private static final Logger log = LoggerFactory.getLogger("application");
 
     @Override
+    public int getUptime(int pid) {
+        return 0;
+    }
+
+    @Override
     public boolean run(String name, String version){
         Path logFile = Paths.get(soaRoot.getPath(), "logs", name+".log");
         Path jarDir = Paths.get(soaRoot.getPath(), "jar", name);

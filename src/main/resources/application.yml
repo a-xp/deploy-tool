@@ -8,10 +8,30 @@ spring:
    maxActive: 2
    testOnBorrow: true
    validationQuery: SELECT 1
+deploy:
+  soa-dir: /data/soa
+  api:
+    masterBuildsCnt: 5
+  registry.url: http://172.19.55.39:8761/eureka
+  maven.url: http://gitlab.dev:8082
+  gitlab:
+    url: http://gitlab.dev/api/v4
+    token: ZTLhymH8aRdWs3_-HRMZ
+    group: soa
+  redmine:
+    url: http://redmine2.shoppinglive.local
+    login: rkhabibullin
+    token: grg.+Jx+%5Vn,(*tHCs^
+  script:
+    service: /etc/init.d
+    cron: /data/soa/cron
+spring.cache:
+  cache-names: gl-projects,gl-builds,nexus,gl-env-branches,gl-pipelines,gl-versions,features,builds,qa-builds,gl-jobs
+  guava.spec: maximumSize=300,expireAfterAccess=600s
 ---
 spring.profiles: local,test
 db.middleware:
-  host: 172.19.55.38
+  host: 172.24.1.31
   dbname: middleware
   username: middleware
   password: DJA7tOz427lhOkOxHOTW

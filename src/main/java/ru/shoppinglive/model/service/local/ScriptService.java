@@ -1,16 +1,23 @@
 package ru.shoppinglive.model.service.local;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+import ru.shoppinglive.Application;
+import ru.shoppinglive.model.entity.filesystem.ScriptMeta;
 import ru.shoppinglive.model.entity.jpa.Project;
-import ru.shoppinglive.model.entity.script.ScriptMeta;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +31,8 @@ public class ScriptService {
     private String service;
     @Setter
     private String cron;
+    @Autowired
+    private Configuration freemarker;
 
     public ScriptMeta getScript(String code, Project.Type type){
         return parseParams(type==Project.Type.service?Paths.get(service, code):Paths.get(cron, code));
@@ -51,6 +60,20 @@ public class ScriptService {
             }
         }else{
             return null;
+        }
+    }
+
+    public boolean createScript(Project.Type type, ScriptMeta meta){
+        Path file = Paths.get(service, meta.getCode());
+        try {
+            Template template = freemarker.getTemplate(type+".ftlx");
+            try(BufferedWriter bw = Files.newBufferedWriter(file, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)){
+                template.process(meta, bw);
+            }
+            return true;
+        }catch (IOException | TemplateException e){
+            Application.logger.warn("Failed to create "+type+" script for "+meta.getCode(), e);
+            return false;
         }
     }
 

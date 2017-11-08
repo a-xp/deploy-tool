@@ -1,4 +1,4 @@
-package ru.shoppinglive.model.entity.script;
+package ru.shoppinglive.model.entity.filesystem;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

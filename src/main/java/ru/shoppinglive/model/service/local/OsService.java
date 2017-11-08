@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -35,6 +34,8 @@ public abstract class OsService {
     public abstract int getPortByPid(int pid);
 
     public abstract boolean killProcess(int pid);
+
+    public abstract int getUptime(int pid);
 
     public boolean stopService(String code, String version){
         return false;
@@ -71,15 +72,7 @@ public abstract class OsService {
     }
 
     public Boolean downloadJar(String name, String version){
-        Path logDir = Paths.get(soaRoot.getPath(), "logs");
         Path jarDir = Paths.get(soaRoot.getPath(), "jar", name);
-        if(!Files.exists(logDir)){
-            try {
-                Files.createDirectories(logDir);
-            }catch (IOException e){
-                throw new RuntimeException(e);
-            }
-        }
         if(!Files.exists(jarDir)){
             try {
                 Files.createDirectories(jarDir);
@@ -124,6 +117,10 @@ public abstract class OsService {
         }catch (IOException e){
             return Collections.emptySet();
         }
+    }
+
+    public void setAutoRun(String code, boolean autoRun){
+
     }
 
 }

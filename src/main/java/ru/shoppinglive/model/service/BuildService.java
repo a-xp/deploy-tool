@@ -1,24 +1,22 @@
 package ru.shoppinglive.model.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import ru.shoppinglive.model.entity.filesystem.ScriptMeta;
 import ru.shoppinglive.model.entity.gitlab.Commit;
 import ru.shoppinglive.model.entity.gitlab.Job;
 import ru.shoppinglive.model.entity.gitlab.Pipeline;
 import ru.shoppinglive.model.entity.jpa.Project;
 import ru.shoppinglive.model.entity.jpa.Task;
 import ru.shoppinglive.model.entity.project.Build;
-import ru.shoppinglive.model.entity.script.ScriptMeta;
 import ru.shoppinglive.model.repository.ProjectRepository;
 import ru.shoppinglive.model.service.local.OsService;
 import ru.shoppinglive.model.service.local.ScriptService;
 import ru.shoppinglive.model.service.remote.GitlabService;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;

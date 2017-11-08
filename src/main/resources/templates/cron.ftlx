@@ -1,0 +1,21 @@
+#!/bin/sh
+
+SERVICE_NAME="${code}"
+PATH_TO_JAR="/data/soa/jar/${code}"
+MEM="${memory}"
+
+if [[ "$1" != "" ]]; then
+    VERSION="$1"
+else
+    VERSION=`find $PATH_TO_JAR -name "courier-parser*.jar" -printf '%T@ %P: %Tc\n' | sort -n -r | cut -d' ' -f2- | head -1 |awk -F":" '{print $1}'|cut -c 16- |sed s/.jar//g`
+#    VERSION=""
+fi
+
+LOG_FILE="/data/soa/logs/$SERVICE_NAME$VERSION.log"
+JAR="courier-parser-$VERSION.jar"
+
+PID_PATH_NAME="/var/run/courier-parser-$VERSION.pid"
+JAVA="$SOA_JAVA_HOME/bin/java"
+
+cd $SOA_JAVA_HOME
+nohup $JAVA -jar -DSL_ENV=dev -Xmx300m $PATH_TO_JAR/$JAR >> $LOG_FILE 2>&1 &
