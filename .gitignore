@@ -1,5 +1,6 @@
 .git
 /.idea
+client/
 target/
 *.iml
 src/main/resources/statis/app/*
