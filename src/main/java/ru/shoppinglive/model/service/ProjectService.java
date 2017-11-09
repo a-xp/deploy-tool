@@ -50,7 +50,7 @@ public class ProjectService {
         Project project = projectRepository.getOne(id);
         ScriptMeta script = scriptService.getScript(project.getCode(), project.getType());
         if(script!=null){
-            return new ProjectParams(true, Integer.parseInt(script.getMemory().replaceAll("\\D]", "")),
+            return new ProjectParams(true, Integer.parseInt(script.getMemory().replaceAll("\\D", "")),
                     script.getAdditionalArgs(), script.getDefaultVersion(), osService.isAutoRun(project.getCode()),
                     project.isAutoReload());
         }else{

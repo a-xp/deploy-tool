@@ -64,8 +64,9 @@ public class ScriptService {
     }
 
     public boolean createScript(Project.Type type, ScriptMeta meta){
-        Path file = Paths.get(service, meta.getCode());
+        Path file = Paths.get(type==Project.Type.service?service:cron, meta.getCode());
         try {
+            if(!Files.exists(file.getParent()))Files.createDirectories(file.getParent());
             Template template = freemarker.getTemplate(type+".ftlx");
             try(BufferedWriter bw = Files.newBufferedWriter(file, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)){
                 template.process(meta, bw);

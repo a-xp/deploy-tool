@@ -13,7 +13,7 @@ import java.util.Collection;
  * Created by rkhabibullin on 20.09.2017.
  */
 @RestController
-@RequestMapping("/runners")
+@RequestMapping("/api/runners")
 public class RunnerController {
 
     @Autowired

@@ -18,6 +18,7 @@ import ru.shoppinglive.model.service.remote.GitlabService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,6 +73,7 @@ public class BuildService {
         return gitlabService.listEnvBranches(project.getGitlabId(), profile).stream().map(env->{
             Pipeline pipeline = gitlabService.getPipelines(project.getGitlabId(), env, 1).get(0);
             Job job = gitlabService.getPipelineJobs(project.getGitlabId(), pipeline.getId()).stream().filter(j->j.getName().equals("build_env")).findFirst().orElse(null);
+            if(job==null)return null;
             String version = gitlabService.getVersion(project.getGitlabId(), job.getId());
             Build build =  new Build(version, pipeline.getId(), env, job.getFinishedAt(), job.getUser().getName(), "", null, null);
             List<Commit> newCommits = gitlabService.findNewCommits(project.getGitlabId(), env);
@@ -84,7 +86,7 @@ public class BuildService {
             if(logged.contains(version))build.addFlag(Build.Flag.HAS_LOG);
             if(loaded.contains(version))build.addFlag(Build.Flag.HAS_JAR);
             return build;
-        }).collect(Collectors.toList());
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private List<Task> tasksFromComment(String comment){

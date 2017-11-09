@@ -12,8 +12,8 @@
 
 SERVICE_NAME="${code}"
 PATH_TO_JAR="/data/soa/jar/${code}"
-MEM="${memory}m"
-DEFAULT_VERSION="${defaultVersion}"
+MEM="${memory!'100m'}"
+DEFAULT_VERSION="${defaultVersion!''}"
 ENV="${env}"
 
 if [[ "$2" != "" ]]; then
@@ -79,7 +79,7 @@ do_stop() {
 force_stop() {
   [[ -f $PID_PATH_NAME ]] || { echoYellow "Not running (pidfile not found)"; return 0; }
   pid=$(cat "$PID_PATH_NAME")
-  isRunning "$pid" || { echoYellow "Not running (process ${pid}). Removing stale pid file."; rm -f "$PID_PATH_NAME"; return 0; }
+  isRunning "$pid" || { echoYellow "Not running (process ${r"${pid}"}"). Removing stale pid file."; rm -f "$PID_PATH_NAME"; return 0; }
   do_force_stop "$pid" "$PID_PATH_NAME"
 }
 

@@ -12,7 +12,7 @@ import java.security.Principal;
  * Created by rkhabibullin on 08.09.2017.
  */
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/api/profile")
 public class ProfileController  {
 
     @Autowired

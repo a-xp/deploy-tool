@@ -20,7 +20,7 @@ import java.util.List;
  */
 @RestController
 @CrossOrigin
-@RequestMapping("/projects")
+@RequestMapping("/api/projects")
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
@@ -60,7 +60,7 @@ public class ProjectController {
 
     @GetMapping("/{id}/params")
     public ProjectParams getParams(@PathVariable("id") int id){
-        return new ProjectParams();
+        return projectService.getParams(id);
     }
 
     @PostMapping("/{id}/params")
