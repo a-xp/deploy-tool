@@ -144,4 +144,37 @@ public class LinuxService extends OsService {
         }catch (Exception e){}
         return result;
     }
+
+    @Override
+    public void setAutoRun(String code, boolean autoRun) {
+        ProcessBuilder pb = new ProcessBuilder("systemctl", autoRun?"enable":"disable", code);
+        pb.redirectErrorStream(true);
+        try {
+            Process process = pb.start();
+            process.waitFor(5, TimeUnit.SECONDS);
+            if(process.isAlive())process.destroyForcibly();
+        }catch (IOException | InterruptedException e){
+            log.warn("systemctl autorun setting failed" + e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean isAutoRun(String code) {
+        ProcessBuilder pb = new ProcessBuilder("systemctl", "status", code);
+        pb.redirectErrorStream(true);
+        try {
+            Process process = pb.start();
+            try (BufferedReader processOutputReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));) {
+                String readLine;
+                while (( readLine = processOutputReader.readLine()) != null){
+                    if(readLine.contains("enabled;"))return true;
+                    if(readLine.contains("disabled;"))return false;
+                }
+            }
+        }catch (Exception e){
+            log.warn("systemctl failed to get service status "+e.getMessage());
+        }
+        return false;
+    }
 }

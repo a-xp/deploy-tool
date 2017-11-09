@@ -1,0 +1,1 @@
+ng build -bh /app/ -op ../src/main/resources/app --env=prod --prod

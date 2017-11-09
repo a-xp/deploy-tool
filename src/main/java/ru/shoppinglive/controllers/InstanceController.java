@@ -14,9 +14,8 @@ import javax.validation.Valid;
 @RestController
 public class InstanceController {
 
-    @PostMapping
+    @PostMapping("/projects/{id}/run")
     public ActionResult runJar(@RequestBody @Valid RunRequest request){
-
 
 
         return new ActionResult();

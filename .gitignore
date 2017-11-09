@@ -3,4 +3,5 @@
 client/
 target/
 *.iml
-src/main/resources/statis/app/*
+src/main/resources/app/*
+src/main/resources/node_modules/*

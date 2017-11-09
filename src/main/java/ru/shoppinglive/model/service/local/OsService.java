@@ -123,4 +123,7 @@ public abstract class OsService {
 
     }
 
+    public boolean isAutoRun(String code){
+        return false;
+    }
 }

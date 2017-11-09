@@ -3,6 +3,7 @@ package ru.shoppinglive.model.entity.project;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Created by rkhabibullin on 08.11.2017.
@@ -10,7 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class ProjectParams {
+    private boolean created;
     private int mem;
     private String additionalParams;
     private String defaultVersion;

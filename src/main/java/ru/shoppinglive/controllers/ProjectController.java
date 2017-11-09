@@ -58,7 +58,12 @@ public class ProjectController {
         return instanceService.getByProject(id);
     }
 
-    @PostMapping("/{id}/script")
+    @GetMapping("/{id}/params")
+    public ProjectParams getParams(@PathVariable("id") int id){
+        return new ProjectParams();
+    }
+
+    @PostMapping("/{id}/params")
     public void createScript(@PathVariable("id") int id, @RequestBody ProjectParams meta) {
         projectService.saveParams(id, meta);
     }
