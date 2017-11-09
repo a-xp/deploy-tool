@@ -30,7 +30,6 @@ public class WindowsService extends OsService {
         Path logFile = Paths.get(soaRoot.getPath(), "logs", name+".log");
         Path jarDir = Paths.get(soaRoot.getPath(), "jar", name);
         Path jarFile = Paths.get(soaRoot.getPath(), "jar", name, name+"-"+version+".jar");
-        downloadJar(name, version);
         ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "start", "\"service\"", "/B", "java", "-DSL_ENV="+env, "-Xmx200m", "-jar", jarFile.toString());
         pb.directory(jarDir.toFile());
         pb.redirectError(logFile.toFile());

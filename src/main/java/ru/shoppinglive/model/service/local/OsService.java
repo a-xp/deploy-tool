@@ -71,7 +71,7 @@ public abstract class OsService {
         return Collections.emptySet();
     }
 
-    public Boolean downloadJar(String name, String version){
+    public Boolean downloadJar(String name, String version, String url){
         Path jarDir = Paths.get(soaRoot.getPath(), "jar", name);
         if(!Files.exists(jarDir)){
             try {
@@ -83,7 +83,7 @@ public abstract class OsService {
         Path jarFile = Paths.get(jarDir.toString(), name+"-"+version+".jar");
         if(!Files.exists(jarFile)) {
             try {
-                URL jarSrc = new URL(maven + name + "/" + version + "/" + name + "-" + version + ".jar");
+                URL jarSrc = new URL(url);
                 try (InputStream is = jarSrc.openStream()) {
                     Files.copy(is, jarFile, StandardCopyOption.REPLACE_EXISTING);
                 }

@@ -19,6 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,15 +73,25 @@ public class GitlabService {
     }
 
     @Cacheable("gl-versions")
-    public String getVersion(int projectId, int jobId){
+    public Optional<LogData> getVersion(int projectId, int jobId){
         ResponseEntity<String> responseEntity = restTemplate.exchange(url + "/projects/" + projectId + "/jobs/"+jobId+"/trace", HttpMethod.GET,
                 new HttpEntity<String>(headers), String.class);
-        Pattern p = Pattern.compile("Detected version: '(.+?)'");
+        Pattern p1 = Pattern.compile("Detected version: '(.+?)'");
         String body = responseEntity.getBody();
-        if(body==null)return null;
-        Matcher m = p.matcher(body);
-        return m.find()?m.group(1):null;
+        if(body!=null && !body.isEmpty()) {
+            Matcher m = p1.matcher(body);
+            if (m.find()) {
+                String version = m.group(1);
+                Pattern p2 = Pattern.compile("Uploaded: (.+" + version.replaceAll("\\.", "\\.") + "\\.jar)");
+                Matcher m2 = p2.matcher(body);
+                if (m2.find()) {
+                    return Optional.of(new LogData(version, m2.group(1)));
+                }
+            }
+        }
+        return Optional.empty();
     }
+
 
     public List<Commit> findNewCommits(int projectId, String ref){
         Commit masterHead = getCommits(projectId, "master", 1).get(0);

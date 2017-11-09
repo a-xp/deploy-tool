@@ -51,7 +51,6 @@ public class LinuxService extends OsService {
 
     @Override
     public boolean run(String name, String version) {
-        downloadJar(name, version);
         return serviceCommand(name, "start", version, "started");
     }
 

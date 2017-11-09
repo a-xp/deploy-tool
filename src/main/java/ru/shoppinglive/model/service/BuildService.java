@@ -51,14 +51,18 @@ public class BuildService {
         Set<String> logged = osService.getLoggedVersions(project.getCode());
         Set<String> loaded = osService.getDownloadedVersions(project.getCode());
         return gitlabService.getPipelines(project.getGitlabId(), "master", 5).stream().map(p->{
-           Job job = gitlabService.getPipelineJobs(project.getGitlabId(), p.getId()).stream().filter(j->j.getName().equals("build")).findFirst().get();
-            String version = gitlabService.getVersion(project.getGitlabId(), job.getId());
-            Build build =  new Build(version, p.getId(), "master", job.getFinishedAt(), job.getUser().getName(), job.getCommit().getTitle(), tasksFromComment(job.getCommit().getTitle()), null);
-            if(scriptMeta!=null && scriptMeta.getDefaultVersion().equals(version))build.addFlag(Build.Flag.AUTOSTART);
-            if(logged.contains(version))build.addFlag(Build.Flag.HAS_LOG);
-            if(loaded.contains(version))build.addFlag(Build.Flag.HAS_JAR);
-            return build;
-        }).collect(Collectors.toList());
+            Job job = gitlabService.getPipelineJobs(project.getGitlabId(), p.getId()).stream().filter(j->j.getName().equals("build")).findFirst().get();
+            return gitlabService.getVersion(project.getGitlabId(), job.getId()).map(
+                logData -> {
+                    Build build =  new Build(logData.getVersion(), p.getId(), "master", job.getFinishedAt(),
+                            job.getUser().getName(), job.getCommit().getTitle(), tasksFromComment(job.getCommit().getTitle()), null);
+                    if(scriptMeta!=null && scriptMeta.getDefaultVersion().equals(logData.getVersion()))build.addFlag(Build.Flag.AUTOSTART);
+                    if(logged.contains(logData.getVersion()))build.addFlag(Build.Flag.HAS_LOG);
+                    if(loaded.contains(logData.getVersion()))build.addFlag(Build.Flag.HAS_JAR);
+                    return build;
+                }
+            ).orElse(null);
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     @Cacheable("qa-builds")
@@ -74,18 +78,21 @@ public class BuildService {
             Pipeline pipeline = gitlabService.getPipelines(project.getGitlabId(), env, 1).get(0);
             Job job = gitlabService.getPipelineJobs(project.getGitlabId(), pipeline.getId()).stream().filter(j->j.getName().equals("build_env")).findFirst().orElse(null);
             if(job==null)return null;
-            String version = gitlabService.getVersion(project.getGitlabId(), job.getId());
-            Build build =  new Build(version, pipeline.getId(), env, job.getFinishedAt(), job.getUser().getName(), "", null, null);
-            List<Commit> newCommits = gitlabService.findNewCommits(project.getGitlabId(), env);
-            if(newCommits!=null){
-                build.setFeatures(newCommits.stream().map(Commit::getTitle).flatMap(t->tasksFromComment(t).stream()).distinct().collect(Collectors.toList()));
-            }else{
-                build.addFlag(Build.Flag.INVALID);
-            }
-            if(scriptMeta!=null && scriptMeta.getDefaultVersion().equals(version))build.addFlag(Build.Flag.AUTOSTART);
-            if(logged.contains(version))build.addFlag(Build.Flag.HAS_LOG);
-            if(loaded.contains(version))build.addFlag(Build.Flag.HAS_JAR);
-            return build;
+            return gitlabService.getVersion(project.getGitlabId(), job.getId()).map(
+                logData -> {
+                    Build build =  new Build(logData.getVersion(), pipeline.getId(), env, job.getFinishedAt(), job.getUser().getName(), "", null, null);
+                    List<Commit> newCommits = gitlabService.findNewCommits(project.getGitlabId(), env);
+                    if(newCommits!=null){
+                        build.setFeatures(newCommits.stream().map(Commit::getTitle).flatMap(t->tasksFromComment(t).stream()).distinct().collect(Collectors.toList()));
+                    }else{
+                        build.addFlag(Build.Flag.INVALID);
+                    }
+                    if(scriptMeta!=null && scriptMeta.getDefaultVersion().equals(logData.getVersion()))build.addFlag(Build.Flag.AUTOSTART);
+                    if(logged.contains(logData.getVersion()))build.addFlag(Build.Flag.HAS_LOG);
+                    if(loaded.contains(logData.getVersion()))build.addFlag(Build.Flag.HAS_JAR);
+                    return build;
+                }
+            ).orElse(null);
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
