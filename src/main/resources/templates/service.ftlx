@@ -18,11 +18,14 @@ ENV="${env}"
 
 if [[ "$2" != "" ]]; then
     VERSION="$2"
+    echo "Using passed param $2"
 else
     if [[ DEFAULT_VERSION != "" ]]; then
         VERSION = DEFAULT_VERSION
+        echo "Using default version $DEFAULT_VERSION"
     else
-        VERSION=`find $PATH_TO_JAR -name "$SERVICE_NAME*.jar" -printf '%T@ %P: %Tc\n' | sort -n -r | cut -d' ' -f2- | head -1 | sed "s/$code-//g" |sed s/.jar//g`
+        VERSION=`find $PATH_TO_JAR -name "$SERVICE_NAME*.jar" -printf '%T@ %P\n' | sort -n -r | cut -d' ' -f2- | head -1 | sed "s/$code-//g" |sed s/.jar//g`
+        echo "Using last version $VERSION"
     fi
 fi
 
@@ -79,7 +82,7 @@ do_stop() {
 force_stop() {
   [[ -f $PID_PATH_NAME ]] || { echoYellow "Not running (pidfile not found)"; return 0; }
   pid=$(cat "$PID_PATH_NAME")
-  isRunning "$pid" || { echoYellow "Not running (process ${r"${pid}"}"). Removing stale pid file."; rm -f "$PID_PATH_NAME"; return 0; }
+  isRunning "$pid" || { echoYellow "Not running (process ${r"${pid}"}). Removing stale pid file."; rm -f "$PID_PATH_NAME"; return 0; }
   do_force_stop "$pid" "$PID_PATH_NAME"
 }
 
