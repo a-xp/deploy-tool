@@ -55,6 +55,7 @@ public class ScriptService {
                             case "ENV": result.setEnv(matcher.group(2)); break;
                             case "SERVICE_NAME": result.setCode(matcher.group(2)); break;
                             case "DEFAULT_VERSION": result.setDefaultVersion(matcher.group(2)); break;
+                            case "ADDITIONAL_ARGS": result.setAdditionalArgs(matcher.group(2)); break;
                         }
                     }
                 });

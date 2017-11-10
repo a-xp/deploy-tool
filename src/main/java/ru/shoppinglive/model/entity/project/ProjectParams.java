@@ -15,7 +15,7 @@ import lombok.Setter;
 public class ProjectParams {
     private boolean created;
     private int mem;
-    private String additionalParams;
+    private String additionalArgs;
     private String defaultVersion;
     private boolean autoRun;
     private boolean autoReload;

@@ -14,14 +14,15 @@ SERVICE_NAME="${code}"
 PATH_TO_JAR="/data/soa/jar/${code}"
 MEM="${memory!'100m'}"
 DEFAULT_VERSION="${defaultVersion!''}"
+ADDITIONAL_ARGS="${additionalArgs!''}"
 ENV="${env}"
 
 if [[ "$2" != "" ]]; then
     VERSION="$2"
     echo "Using passed param $2"
 else
-    if [[ DEFAULT_VERSION != "" ]]; then
-        VERSION = DEFAULT_VERSION
+    if [[ $DEFAULT_VERSION != "" ]]; then
+        VERSION=$DEFAULT_VERSION
         echo "Using default version $DEFAULT_VERSION"
     else
         VERSION=`find $PATH_TO_JAR -name "$SERVICE_NAME*.jar" -printf '%T@ %P\n' | sort -n -r | cut -d' ' -f2- | head -1 | sed "s/$code-//g" |sed s/.jar//g`
@@ -56,7 +57,7 @@ start() {
   fi
   echo "Starting $SERVICE_NAME ..."
   cd $SOA_JAVA_HOME
-  nohup $JAVA -jar -Xms$MEM -Xmx$MEM -DSL_ENV=$ENV $PATH_TO_JAR/$JAR >> $LOG_FILE 2>&1 &
+  nohup $JAVA $ADDITIONAL_ARGS -Xms$MEM -Xmx$MEM -DSL_ENV=$ENV -jar $PATH_TO_JAR/$JAR >> $LOG_FILE 2>&1 &
   pgrep -u root -f $JAR > $PID_PATH_NAME
   echo "$SERVICE_NAME started ..."
 }

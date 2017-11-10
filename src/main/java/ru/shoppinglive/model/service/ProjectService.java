@@ -39,7 +39,7 @@ public class ProjectService {
     public void saveParams(int id, ProjectParams params){
         Project project = projectRepository.getOne(id);
         ScriptMeta meta = new ScriptMeta(project.getCode(), params.getDefaultVersion(), params.getMem()>0?params.getMem()+"m":"",
-                environment.getActiveProfiles()[0], "");
+                environment.getActiveProfiles()[0], params.getAdditionalArgs().replaceAll("[`;]",""));
         scriptService.createScript(project.getType(), meta);
         osService.setAutoRun(project.getCode(), params.isAutoRun());
         project.setAutoReload(params.isAutoReload());
