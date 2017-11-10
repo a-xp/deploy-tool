@@ -12,12 +12,16 @@ import ru.shoppinglive.model.entity.filesystem.ScriptMeta;
 import ru.shoppinglive.model.entity.jpa.Project;
 
 import java.io.BufferedWriter;
+import java.io.FilterWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,7 +73,31 @@ public class ScriptService {
             if(!Files.exists(file.getParent()))Files.createDirectories(file.getParent());
             Template template = freemarker.getTemplate(type+".ftlx");
             try(BufferedWriter bw = Files.newBufferedWriter(file, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)){
-                template.process(meta, bw);
+                template.process(meta, new FilterWriter(bw) {
+                    @Override
+                    public void write(String str, int off, int len) throws IOException {
+                        String part = str.substring(off, off+len).replaceAll("\r", "");
+                        super.write(part, 0, part.length());
+                    }
+
+                    @Override
+                    public void write(char[] cbuf, int off, int len) throws IOException {
+                        char[] part = String.valueOf(cbuf, off, len).replaceAll("\r","").toCharArray();
+                        super.write(part,0,part.length);
+                    }
+
+                });
+            }
+            try {
+                Set<PosixFilePermission> perms = new HashSet<>();
+                perms.add(PosixFilePermission.OWNER_READ);
+                perms.add(PosixFilePermission.OWNER_WRITE);
+                perms.add(PosixFilePermission.OWNER_EXECUTE);
+                perms.add(PosixFilePermission.GROUP_READ);
+                perms.add(PosixFilePermission.OTHERS_READ);
+                Files.setPosixFilePermissions(file, perms);
+            }catch (UnsupportedOperationException e){
+                Application.logger.warn("Failed to set init script permissions " + file);
             }
             return true;
         }catch (IOException | TemplateException e){
