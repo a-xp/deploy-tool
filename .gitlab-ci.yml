@@ -17,7 +17,7 @@ build:
     - java
   stage: build
   script:
-    - cd /client
+    - cd ./client
     - npm install
     - ng build -bh /app/ -op ../src/main/resources/app
     - cd ..
