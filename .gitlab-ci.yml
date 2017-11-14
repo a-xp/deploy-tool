@@ -20,7 +20,7 @@ build:
   script:
     - cd ./client
     - npm install
-    - ng build -bh /app/ -op ../src/main/resources/app
+    - ng build -bh /app/ -op ../src/main/resources/app --prod
     - cd ..
     - export CI_LAST_TAG=`git describe --abbrev=0 --tags`
     - export CI_DEPLOY_TOKEN='ZTLhymH8aRdWs3_-HRMZ'
