@@ -1,0 +1,30 @@
+stages:
+  - test
+  - build
+test:
+  tags:
+    - java
+  stage: test
+  script: mvn test -B
+  only:
+    - branches
+  except:
+    - master
+build:
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  tags:
+    - java
+  stage: build
+  script:
+    - cd /client
+    - npm install
+    - ng build -bh /app/ -op ../src/main/resources/app
+    - cd ..
+    - export CI_LAST_TAG=`git describe --abbrev=0 --tags`
+    - export CI_DEPLOY_TOKEN='ZTLhymH8aRdWs3_-HRMZ'
+    - mvn ru.shoppinglive.plugins:version-maven-plugin:1.6:version -B
+    - mvn ru.shoppinglive.plugins:version-maven-plugin:1.6:release -B
+  only:
+    - master
+    - tags

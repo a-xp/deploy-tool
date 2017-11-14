@@ -11,6 +11,7 @@ import ru.shoppinglive.model.entity.gitlab.Job;
 import ru.shoppinglive.model.entity.jpa.Project;
 import ru.shoppinglive.model.entity.project.ProjectParams;
 import ru.shoppinglive.model.service.ProjectService;
+import ru.shoppinglive.model.service.local.InstanceService;
 import ru.shoppinglive.model.service.local.OsService;
 import ru.shoppinglive.model.service.remote.GitlabService;
 
@@ -28,6 +29,8 @@ public class InstanceController {
     private GitlabService gitlabService;
     @Autowired
     private OsService osService;
+    @Autowired
+    private InstanceService instanceService;
 
     @PostMapping("/api/projects/{id}/run")
     public ActionResult runJar(@RequestBody @Valid RunRequest request, @PathVariable("id") int id){
@@ -49,5 +52,10 @@ public class InstanceController {
         return new ActionResult(false);
     }
 
+    @PostMapping("/api/projects/{id}/instances/{pid}/stop")
+    public ActionResult stopInstance(@PathVariable("id") int id, @PathVariable("pid") int pid){
+        Project project = projectService.getById(id);
+        return new ActionResult(instanceService.killInstance(pid));
+    }
 
 }

@@ -3,17 +3,13 @@ package ru.shoppinglive.model.service.remote;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.HtmlUtils;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,9 +71,9 @@ public class RedmineService {
         page = restTemplate.exchange(url+"/issues/"+id, HttpMethod.GET, new HttpEntity<>(headers), String.class);
 
         if(page.getStatusCode().is2xxSuccessful()){
-            Pattern patternTitle = Pattern.compile("<h3>(.+?)</h3>");
+            Pattern patternTitle = Pattern.compile("<div class=\"subject\">\\s*<div>\\s*<h3>(.+?)<\\/h3>");
             matcher = patternTitle.matcher(page.getBody());
-            if( matcher.find() && matcher.find() && matcher.find() && matcher.find()){
+            if(matcher.find()){
                 return HtmlUtils.htmlUnescape(matcher.group(1));
             }
         }

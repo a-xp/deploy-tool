@@ -25,7 +25,7 @@ else
         VERSION=$DEFAULT_VERSION
         echo "Using default version $DEFAULT_VERSION"
     else
-        VERSION=`find $PATH_TO_JAR -name "$SERVICE_NAME*.jar" -printf '%T@ %P\n' | sort -n -r | cut -d' ' -f2- | head -1 | sed "s/$code-//g" |sed s/.jar//g`
+        VERSION=`find $PATH_TO_JAR -name "$SERVICE_NAME*.jar" -printf '%T@ %P\n' | sort -n -r | cut -d' ' -f2- | head -1 | sed "s/$SERVICE_NAME-//g" |sed s/\.jar//g`
         echo "Using last version $VERSION"
     fi
 fi

@@ -146,7 +146,7 @@ public class LinuxService extends OsService {
 
     @Override
     public void setAutoRun(String code, boolean autoRun) {
-        ProcessBuilder pb = new ProcessBuilder("systemctl", autoRun?"enable":"disable", code);
+        ProcessBuilder pb = new ProcessBuilder("chkconfig", autoRun?"--add":"--del", code);
         pb.redirectErrorStream(true);
         try {
             Process process = pb.start();
@@ -159,7 +159,7 @@ public class LinuxService extends OsService {
 
     @Override
     public boolean isAutoRun(String code) {
-        ProcessBuilder pb = new ProcessBuilder("systemctl", "status", code);
+        ProcessBuilder pb = new ProcessBuilder("chkconfig", "--list", code);
         pb.redirectErrorStream(true);
         try {
             Process process = pb.start();
@@ -167,8 +167,8 @@ public class LinuxService extends OsService {
                     new InputStreamReader(process.getInputStream()));) {
                 String readLine;
                 while (( readLine = processOutputReader.readLine()) != null){
-                    if(readLine.contains("enabled;"))return true;
-                    if(readLine.contains("disabled;"))return false;
+                    if(readLine.contains("3:on"))return true;
+                    if(readLine.contains("3:off"))return false;
                 }
             }
         }catch (Exception e){
