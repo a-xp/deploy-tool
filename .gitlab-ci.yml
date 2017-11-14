@@ -11,14 +11,13 @@ test:
   except:
     - master
 build:
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
   tags:
     - java
   stage: build
+  before_script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
   script:
-    - pwd
-    - ls -l
     - cd ./client
     - npm install
     - ng build -bh /app/ -op ../src/main/resources/app
