@@ -42,14 +42,12 @@ public class GitlabService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Cacheable("gl-env-branches")
     public Set<String> listEnvBranches (int id, String env){
         return restTemplate.exchange(url + "/projects/" + id + "/repository/branches", HttpMethod.GET, new HttpEntity<>(headers),
                 new ParameterizedTypeReference<List<Branch>>() {
                 }).getBody().stream().map(Branch::getName).filter(n->n.startsWith(env)).collect(Collectors.toSet());
     }
 
-    @Cacheable("gl-projects")
     public Project getProject(String code){
         try {
             URI reqUrl = new URI(url + "/projects/" + group + "%2F" + code);
@@ -60,13 +58,11 @@ public class GitlabService {
         }
     }
 
-    @Cacheable("gl-pipelines")
     public List<Pipeline> getPipelines(int id, String ref, int cnt){
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url+"/projects/"+id+"/pipelines").queryParam("ref", ref).queryParam("per_page", cnt).queryParam("status","success");
         return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<Void>(headers), new ParameterizedTypeReference<List<Pipeline>>() {}).getBody();
     }
 
-    @Cacheable("gl-jobs")
     public List<Job> getPipelineJobs(int projectId, int pipelineId){
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url+"/projects/"+projectId+"/pipelines/"+pipelineId+"/jobs").queryParam("status","success");
         return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<Void>(headers), new ParameterizedTypeReference<List<Job>>(){}).getBody();

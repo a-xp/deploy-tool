@@ -1,7 +1,6 @@
 package ru.shoppinglive.model.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import ru.shoppinglive.model.entity.filesystem.ScriptMeta;
@@ -43,8 +42,6 @@ public class BuildService {
     @Autowired
     Environment settings;
 
-
-    @Cacheable("builds")
     public List<Build> getMasterBuilds(int id){
         Project project = projectRepository.findOne(id);
         ScriptMeta scriptMeta = scriptService.getScript(project.getCode(), project.getType());
@@ -65,7 +62,6 @@ public class BuildService {
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    @Cacheable("qa-builds")
     public List<Build> getQABuilds(int id){
         Project project = projectRepository.findOne(id);
         ScriptMeta scriptMeta = scriptService.getScript(project.getCode(), project.getType());
