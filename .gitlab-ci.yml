@@ -17,6 +17,8 @@ build:
     - java
   stage: build
   script:
+    - pwd
+    - ls -l
     - cd ./client
     - npm install
     - ng build -bh /app/ -op ../src/main/resources/app
