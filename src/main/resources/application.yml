@@ -1,4 +1,4 @@
-server.port: 9000
+server.port: 9009
 logger.root.level: info
 spring:
   datasource:
