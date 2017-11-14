@@ -1,6 +1,8 @@
 stages:
   - test
   - build
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
 test:
   tags:
     - java
@@ -11,8 +13,6 @@ test:
   except:
     - master
 build:
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
   tags:
     - java
   stage: build
