@@ -48,17 +48,17 @@ public class BuildService {
         Set<String> logged = osService.getLoggedVersions(project.getCode());
         Set<String> loaded = osService.getDownloadedVersions(project.getCode());
         return gitlabService.getPipelines(project.getGitlabId(), "master", 5).stream().map(p->{
-            Job job = gitlabService.getPipelineJobs(project.getGitlabId(), p.getId()).stream().filter(j->j.getName().equals("build")).findFirst().get();
-            return gitlabService.getVersion(project.getGitlabId(), job.getId()).map(
-                logData -> {
-                    Build build =  new Build(logData.getVersion(), p.getId(), "master", job.getFinishedAt(),
-                            job.getUser().getName(), job.getCommit().getTitle(), tasksFromComment(job.getCommit().getTitle()), null);
-                    if(scriptMeta!=null && scriptMeta.getDefaultVersion().equals(logData.getVersion()))build.addFlag(Build.Flag.AUTOSTART);
-                    if(logged.contains(logData.getVersion()))build.addFlag(Build.Flag.HAS_LOG);
-                    if(loaded.contains(logData.getVersion()))build.addFlag(Build.Flag.HAS_JAR);
-                    return build;
-                }
-            ).orElse(null);
+            return gitlabService.getPipelineJobs(project.getGitlabId(), p.getId()).stream().filter(j->j.getName().equals("build")).findFirst()
+                .flatMap(job->gitlabService.getVersion(project.getGitlabId(), job.getId()).map(
+                        logData -> {
+                            Build build =  new Build(logData.getVersion(), p.getId(), "master", job.getFinishedAt(),
+                                    job.getUser().getName(), job.getCommit().getTitle(), tasksFromComment(job.getCommit().getTitle()), null);
+                            if(scriptMeta!=null && scriptMeta.getDefaultVersion().equals(logData.getVersion()))build.addFlag(Build.Flag.AUTOSTART);
+                            if(logged.contains(logData.getVersion()))build.addFlag(Build.Flag.HAS_LOG);
+                            if(loaded.contains(logData.getVersion()))build.addFlag(Build.Flag.HAS_JAR);
+                            return build;
+                        }
+                )).orElse(null);
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
