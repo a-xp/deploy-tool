@@ -12,7 +12,7 @@ import org.springframework.web.servlet.view.InternalResourceView;
 @Controller
 public class IndexController {
 
-    @GetMapping({"/app/projects/**", "/app/users/**", "/app/config/**/", "/app/status/**", "/app/profile/**", "/app/login"})
+    @GetMapping({"/app/projects/*", "/app/users/*", "/app/config/*", "/app/status/*", "/app/profile/*", "/app/login"})
     public View index(ModelMap model){
         return new InternalResourceView("index.html");
     }
