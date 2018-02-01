@@ -68,20 +68,26 @@ public class GitlabService {
         return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<Void>(headers), new ParameterizedTypeReference<List<Job>>(){}).getBody();
     }
 
+    private final Pattern versionPattern = Pattern.compile("Detected version: '(.+?)'");
+    private final Pattern newTagPattern = Pattern.compile("New tag was created: '(.+?)'");
+
     @Cacheable("gl-versions")
     public Optional<LogData> getVersion(int projectId, int jobId){
         ResponseEntity<String> responseEntity = restTemplate.exchange(url + "/projects/" + projectId + "/jobs/"+jobId+"/trace", HttpMethod.GET,
                 new HttpEntity<String>(headers), String.class);
-        Pattern p1 = Pattern.compile("Detected version: '(.+?)'");
         String body = responseEntity.getBody();
         if(body!=null && !body.isEmpty()) {
-            Matcher m = p1.matcher(body);
+            Matcher m = versionPattern.matcher(body);
             if (m.find()) {
                 String version = m.group(1);
                 Pattern p2 = Pattern.compile("Uploaded: (.+" + version.replaceAll("\\.", "\\.") + "\\.jar)");
                 Matcher m2 = p2.matcher(body);
                 if (m2.find()) {
-                    return Optional.of(new LogData(version, m2.group(1)));
+                    return Optional.of(new LogData(version, m2.group(1), null));
+                }
+                Matcher m3 = newTagPattern.matcher(body);
+                if(m3.find()){
+                    return Optional.of(new LogData(version, null, m3.group(1)));
                 }
             }
         }

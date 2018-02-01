@@ -51,12 +51,31 @@ public class BuildService {
             return gitlabService.getPipelineJobs(project.getGitlabId(), p.getId()).stream().filter(j->j.getName().equals("build")).findFirst()
                 .flatMap(job->gitlabService.getVersion(project.getGitlabId(), job.getId()).map(
                         logData -> {
-                            Build build =  new Build(logData.getVersion(), p.getId(), "master", job.getFinishedAt(),
-                                    job.getUser().getName(), job.getCommit().getTitle(), tasksFromComment(job.getCommit().getTitle()), null);
-                            if(scriptMeta!=null && scriptMeta.getDefaultVersion().equals(logData.getVersion()))build.addFlag(Build.Flag.AUTOSTART);
-                            if(logged.contains(logData.getVersion()))build.addFlag(Build.Flag.HAS_LOG);
-                            if(loaded.contains(logData.getVersion()))build.addFlag(Build.Flag.HAS_JAR);
-                            return build;
+                            if(logData.isTag()){
+                                return gitlabService.getPipelines(project.getGitlabId(), logData.getNewTag(), 5).stream()
+                                    .flatMap(p2->gitlabService.getPipelineJobs(project.getGitlabId(), p.getId()).stream()
+                                        .filter(j->j.getName().equals("build"))
+                                        .map(j->gitlabService.getVersion(project.getGitlabId(), j.getId())
+                                            .map(l->{
+                                                Build build = new Build(l.getVersion(), p2.getId(), "master", j.getFinishedAt(),
+                                                        job.getUser().getName(), job.getCommit().getTitle(), tasksFromComment(job.getCommit().getTitle()), null);
+                                                if (scriptMeta != null && scriptMeta.getDefaultVersion().equals(l.getVersion()))
+                                                    build.addFlag(Build.Flag.AUTOSTART);
+                                                if (logged.contains(l.getVersion())) build.addFlag(Build.Flag.HAS_LOG);
+                                                if (loaded.contains(l.getVersion())) build.addFlag(Build.Flag.HAS_JAR);
+                                                return  build;
+                                            }).orElse(null)))
+                                        .filter(Objects::nonNull)
+                                        .findFirst().orElse(null);
+                            } else {
+                                Build build = new Build(logData.getVersion(), p.getId(), "master", job.getFinishedAt(),
+                                        job.getUser().getName(), job.getCommit().getTitle(), tasksFromComment(job.getCommit().getTitle()), null);
+                                if (scriptMeta != null && scriptMeta.getDefaultVersion().equals(logData.getVersion()))
+                                    build.addFlag(Build.Flag.AUTOSTART);
+                                if (logged.contains(logData.getVersion())) build.addFlag(Build.Flag.HAS_LOG);
+                                if (loaded.contains(logData.getVersion())) build.addFlag(Build.Flag.HAS_JAR);
+                                return build;
+                            }
                         }
                 )).orElse(null);
         }).filter(Objects::nonNull).collect(Collectors.toList());

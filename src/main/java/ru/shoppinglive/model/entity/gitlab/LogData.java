@@ -11,4 +11,9 @@ import lombok.Data;
 public class LogData {
     private String version;
     private String jarPath;
+    private String newTag;
+
+    public boolean isTag(){
+        return newTag!=null;
+    }
 }
